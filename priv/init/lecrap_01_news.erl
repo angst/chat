@@ -1,4 +1,4 @@
--module(chat_01_news).
+-module(lecrap_01_news).
 
 -export([init/0, stop/1]).
 

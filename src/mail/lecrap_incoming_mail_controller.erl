@@ -1,4 +1,4 @@
--module(chat_incoming_mail_controller).
+-module(lecrap_incoming_mail_controller).
 -compile(export_all).
 
 authorize_(User, DomainName, IPAddress) ->
