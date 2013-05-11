@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Chat{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Loading Bootstrap -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Loading Flat UI -->
+    <link href="/static/css/flat-ui.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/static/images/favicon.ico">
+  </head>
+  <body>
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div> <!-- /container -->
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="span7">
+            <h3 class="footer-title">WIP</h3>
+            <p><a href="/main/demo">flat-ui demo</a></p>
+
+          </div> <!-- /span8 -->
+
+          <div class="span5">
+            <div class="footer-banner">
+              <h3 class="footer-title">Powered By</h3>
+              <ul>
+                <li>Chicago Boss</li>
+                <li>Ember.js</li>
+                <li>Bootstrap / Flat UI</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    {% include "ember-templates.html" %}
+
+    <!-- Load JS here for greater good =============================-->
+    <script src="/static/js/jquery-1.9.1.js"></script>
+    <script src="/static/js/jquery-ui-1.10.0.custom.min.js"></script>
+    <script src="/static/js/jquery.dropkick-1.0.0.js"></script>
+    <script src="/static/js/custom_checkbox_and_radio.js"></script>
+    <script src="/static/js/custom_radio.js"></script>
+    <script src="/static/js/jquery.tagsinput.js"></script>
+    <script src="/static/js/bootstrap-tooltip.js"></script>
+    <script src="/static/js/jquery.placeholder.js"></script>
+    <script src="/static/js/flatui-app.js"></script>
+    <script src="/static/js/handlebars-1.0.0-rc.3.js"></script>
+    <script src="/static/js/ember-1.0.0-rc.3.js"></script>
+    <script src="/static/js/app.js"></script>
+
+    <!--[if lt IE 8]>
+      <script src="js/icon-font-ie7.js"></script>
+      <script src="js/icon-font-ie7-24.js"></script>
+    <![endif]-->
+  </body>
+</html>
