@@ -42,6 +42,8 @@ App.Message.reopenClass({
   },
   post: function(text) {
     $.post('/messages', {author: 'you', text: text}).then(function(d) {
+      // FIXME(ja): instead of adding, this should update the state of a 
+      // sent message... then we can rely on the websocket below for the action
       if (d.message) {
         App.Message.add(d.message.id, 
                         d.message.author,
@@ -73,7 +75,8 @@ App.IndexController = Ember.ArrayController.extend({
 ws = new WebSocket("ws://localhost:8001/websocket/chat", "chat");
 
 ws.onmessage = function(event) {
-  console.log(event);
+  var d = JSON.parse(event.data);
+  App.Message.add(d.id, d.author, d.text);
 }
 
 
