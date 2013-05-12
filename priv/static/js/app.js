@@ -59,6 +59,10 @@ App.IndexRoute = Ember.Route.extend({
   model: function() {
     return App.Message.all();
   },
+  init: function() {
+    this._super();
+    App.Message.findAll();
+  }
 });
 
 App.IndexController = Ember.ArrayController.extend({
@@ -70,13 +74,9 @@ App.IndexController = Ember.ArrayController.extend({
   }
 });
 
-// setInterval(App.Message.findAll, 1000);
-
 ws = new WebSocket("ws://localhost:8001/websocket/chat", "chat");
 
 ws.onmessage = function(event) {
   var d = JSON.parse(event.data);
   App.Message.add(d.id, d.author, d.text);
 }
-
-

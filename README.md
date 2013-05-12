@@ -14,3 +14,11 @@ Resources
 
  * http://eviltrout.com/2013/03/23/ember-without-data.html (ember without ember-data)
  * http://www.evanmiller.org/chicago-boss-tutorial.pdf - pretty solid tutorial
+
+Issues
+------
+
+ * the models know way to much about websockets... should publish to boss_mq
+ * add concept of users
+ * messages should be added in pending state on client after hitting return, then updated after sent
+ * timestamps for messages
