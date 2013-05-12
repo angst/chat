@@ -1,20 +1,20 @@
 App = Ember.Application.create({
-	'rootElement': '#ember-app'
+  'rootElement': '#ember-app'
 });
 
 App.Message = Ember.Object.extend({
   id: null,
-	author: null,
-	text: null
+  author: null,
+  text: null
 });
 
 App.Message.reopenClass({
-	collection: [],
+  collection: [],
   collection_by_id: {},
-	all: function() {
-		return this.collection;
-	},
-	add: function(id, author, text) {
+  all: function() {
+    return this.collection;
+  },
+  add: function(id, author, text) {
     // FIXME(ja): should I really have to check manually - no magic?
     if (this.collection_by_id[id]) {
       var msg = this.collection_by_id[id];
@@ -22,15 +22,15 @@ App.Message.reopenClass({
       msg.set('text', text);
       return;
     }
-		var msg = App.Message.create({
+    var msg = App.Message.create({
       id: id,
-			author: author,
-			text: text
-		});
+      author: author,
+      text: text
+    });
 
-		this.collection.pushObject(msg);
+    this.collection.pushObject(msg);
     this.collection_by_id[msg.id] = msg;
-	},
+  },
   findAll: function() {
     $.getJSON('/messages').then(function(response) {
       if (response.messages) {
@@ -39,20 +39,25 @@ App.Message.reopenClass({
         })
       }
     });
+  },
+  post: function(text) {
+    $.post('/messages', {author: 'you', text: text});
   }
 });
 
 App.IndexRoute = Ember.Route.extend({
-	model: function() {
-		return App.Message.all();
-	},
+  model: function() {
+    return App.Message.all();
+  },
 });
 
 App.IndexController = Ember.ArrayController.extend({
-	send: function() {
-		App.Message.add("you", this.get("newMessage"));
-		this.set('newMessage', '');
-	}
+  send: function() {
+    // FIXME(ja): we should update the client side as soon as we type
+    // but with a state of "sending" until it is recv'd
+    App.Message.post(this.get("newMessage"));
+    this.set('newMessage', '');
+  }
 });
 
 setInterval(App.Message.findAll, 1000);

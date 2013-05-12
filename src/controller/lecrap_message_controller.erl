@@ -2,12 +2,14 @@
 -compile(export_all).
 
 index('GET', []) ->
-    Messages = [
-    	[{id, 1},
-    	          {author, <<"jesse">>},
-    	          {text, <<"hi, whats up">>}],
-    	[{id, 2},
-    	          {author, <<"manish">>},
-    	          {text, <<"no much!">>}]
-    ],
-    {json, [{messages, Messages}]}.
+    Msgs = boss_db:find(message, []),
+    {json, [{messages, [Msg:attributes() || Msg <- Msgs]}]};
+
+index('POST', []) ->
+    Msg = message:new(id, Req:post_param("author"), Req:post_param("text")),
+    case Msg:save() of
+        {ok, SavedMsg} ->
+            {json, [{message, SavedMsg:attributes()}]};
+        {error, Errors} ->
+            {json, [{errors, Errors}]}
+    end.
