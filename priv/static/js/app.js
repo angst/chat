@@ -3,33 +3,41 @@ App = Ember.Application.create({
 });
 
 App.Message = Ember.Object.extend({
+  id: null,
 	author: null,
 	text: null
 });
 
 App.Message.reopenClass({
 	collection: [],
+  collection_by_id: {},
 	all: function() {
 		return this.collection;
 	},
-	add: function(author, text) {
+	add: function(id, author, text) {
+    // FIXME(ja): should I really have to check manually - no magic?
+    if (this.collection_by_id[id]) {
+      var msg = this.collection_by_id[id];
+      msg.set('author', author);
+      msg.set('text', text);
+      return;
+    }
 		var msg = App.Message.create({
+      id: id,
 			author: author,
 			text: text
 		});
 
 		this.collection.pushObject(msg);
+    this.collection_by_id[msg.id] = msg;
 	},
   findAll: function() {
-    return $.getJSON('/messages').then(function(response) {
-      var messages = [];
+    $.getJSON('/messages').then(function(response) {
       if (response.messages) {
         response.messages.forEach(function(data) {
-          App.Message.add(data.author, data.text);
+          App.Message.add(data.id, data.author, data.text);
         })
       }
-      // console.log(messages);
-      return messages;
     });
   }
 });
@@ -38,10 +46,6 @@ App.IndexRoute = Ember.Route.extend({
 	model: function() {
 		return App.Message.all();
 	},
-  init: function() {
-    this._super();
-    App.Message.findAll();
-  }
 });
 
 App.IndexController = Ember.ArrayController.extend({
@@ -50,3 +54,5 @@ App.IndexController = Ember.ArrayController.extend({
 		this.set('newMessage', '');
 	}
 });
+
+setInterval(App.Message.findAll, 1000);

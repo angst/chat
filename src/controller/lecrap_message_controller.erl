@@ -3,9 +3,11 @@
 
 index('GET', []) ->
     Messages = [
-    	{struct, [{author, <<"jesse">>},
+    	{struct, [{id, 1},
+    	          {author, <<"jesse">>},
     	          {text, <<"hi, whats up">>}]},
-    	{struct, [{author, <<"manish">>},
+    	{struct, [{id, 2},
+    	          {author, <<"manish">>},
     	          {text, <<"no much!">>}]}
     ],
     {output,
