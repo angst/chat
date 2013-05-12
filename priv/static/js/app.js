@@ -68,4 +68,12 @@ App.IndexController = Ember.ArrayController.extend({
   }
 });
 
-setInterval(App.Message.findAll, 1000);
+// setInterval(App.Message.findAll, 1000);
+
+ws = new WebSocket("ws://localhost:8001/websocket/chat", "chat");
+
+ws.onmessage = function(event) {
+  console.log(event);
+}
+
+
