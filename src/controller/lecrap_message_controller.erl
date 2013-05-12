@@ -3,14 +3,11 @@
 
 index('GET', []) ->
     Messages = [
-    	{struct, [{id, 1},
+    	[{id, 1},
     	          {author, <<"jesse">>},
-    	          {text, <<"hi, whats up">>}]},
-    	{struct, [{id, 2},
+    	          {text, <<"hi, whats up">>}],
+    	[{id, 2},
     	          {author, <<"manish">>},
-    	          {text, <<"no much!">>}]}
+    	          {text, <<"no much!">>}]
     ],
-    {output,
-    mochijson2:encode({struct, [{messages, Messages}]}),
-    [{"Content-Type", "application/json"}]
-    }.
+    {json, [{messages, Messages}]}.
