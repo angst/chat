@@ -41,7 +41,15 @@ App.Message.reopenClass({
     });
   },
   post: function(text) {
-    $.post('/messages', {author: 'you', text: text});
+    $.post('/messages', {author: 'you', text: text}).then(function(d) {
+      if (d.message) {
+        App.Message.add(d.message.id, 
+                        d.message.author,
+                        d.message.text);
+      } else {
+        console.log(d);
+      }
+    });
   }
 });
 
