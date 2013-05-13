@@ -74,9 +74,27 @@ App.IndexController = Ember.ArrayController.extend({
   }
 });
 
-ws = new WebSocket("ws://localhost:8001/websocket/chat", "chat");
+function live() {
+  var loc = window.location
+    , ws_url;
 
-ws.onmessage = function(event) {
-  var d = JSON.parse(event.data);
-  App.Message.add(d.id, d.author, d.text);
+  if (loc.protocol === "https:") {
+    ws_url = "wss:";
+  } else {
+    ws_url = "ws:";
+  }
+  ws_url += "//" + loc.host;
+  ws_url += ':' + loc.port;
+  ws_url += "/websocket/chat";
+  ws = new WebSocket(ws_url, "chat");
+
+  ws.onmessage = function(event) {
+    var d = JSON.parse(event.data);
+    App.Message.add(d.id, d.author, d.text);
+  }
+  ws.onerror = function(e) { console.log('error', e); };
+  ws.onopen = function(e) { console.log('open', e); };
+  ws.onclose = function(e) { console.log('close', e); };
 }
+
+live();

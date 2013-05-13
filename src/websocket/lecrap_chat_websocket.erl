@@ -44,6 +44,7 @@ init() ->
 %% to handle a connection to your service
 %%--------------------------------------------------------------------
 handle_join(_ServiceName, WebSocketId, SessionId, State) ->
+  io:format("websocket join: ~p~n", [WebSocketId]),
   #state{users=Users} = State,
   {reply, ok, #state{users=dict:store(WebSocketId,SessionId,Users)}}.
 %%--------------------------------------------------------------------
