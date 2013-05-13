@@ -54,6 +54,7 @@ handle_join(_ServiceName, WebSocketId, SessionId, State) ->
 %% to handle a close connection to you service
 %%--------------------------------------------------------------------
 handle_close(_ServiceName, WebSocketId, _SessionId, State) ->
+  io:format("websocket leave: ~p~n", [WebSocketId]),
   #state{users=Users} = State,
   {reply, ok, #state{users=dict:erase(WebSocketId,Users)}}.
 %%--------------------------------------------------------------------
@@ -65,6 +66,7 @@ handle_close(_ServiceName, WebSocketId, _SessionId, State) ->
 %%--------------------------------------------------------------------
 handle_incoming(_ServiceName, WebSocketId, _SessionId, Message, State) ->
   #state{users=Users} = State,
+  io:format("websocket sending: ~p to ~p~n", [Message, Users]),
   Fun = fun(X) when is_pid(X)-> X ! {text, Message} end,
   All = dict:fetch_keys(Users),
   [Fun(E) || E <- All, E /= WebSocketId],
