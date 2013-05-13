@@ -14,6 +14,7 @@ Resources
 
  * http://eviltrout.com/2013/03/23/ember-without-data.html (ember without ember-data)
  * http://www.evanmiller.org/chicago-boss-tutorial.pdf - pretty solid tutorial
+ * http://www.freemindsystems.com/blog/post/eunit-testing-with-erlang-and-chicago-boss - testing the boss
 
 Issues
 ------
