@@ -9,6 +9,45 @@ A learning project that combines
 
 The goal is to use advanced features of erlang to have a realtime messaging system (probably websockets) for chat
 
+Install
+-------
+
+Install Erlang: `apt-get install -y erlang`
+
+Install Chicago Boss:
+
+    cd ..
+    wget http://www.chicagoboss.org/ChicagoBoss-0.8.6.tar.gz
+    tar -zxvf ChicagoBoss-0.8.6.tar.gz
+    cd ChicagoBoss-0.8.6
+    ./rebar compile
+
+Run our app:
+
+    cd ../lecrap
+    ./init-dev.sh
+
+Visit http://localhost:8003/ in your browser
+
+NGINX
+-----
+
+If you want to put chicago boss behind nginx, you will need need a recent 
+version (at least 1.3.13) that supports websockets.
+
+    server {
+      server_name lechat.example.com;
+      listen 80;
+    
+      location / {
+        proxy_pass http://localhost:8003;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+    }
+
+
 Resources
 ---------
 

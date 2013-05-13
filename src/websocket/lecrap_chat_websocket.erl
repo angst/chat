@@ -66,7 +66,7 @@ handle_close(_ServiceName, WebSocketId, _SessionId, State) ->
 %%--------------------------------------------------------------------
 handle_incoming(_ServiceName, WebSocketId, _SessionId, Message, State) ->
   #state{users=Users} = State,
-  io:format("websocket sending: ~p to ~p~n", [Message, Users]),
+  io:format("websocket sending: ~s to ~p websockets~n", [Message, dict:size(Users)]),
   Fun = fun(X) when is_pid(X)-> X ! {text, Message} end,
   All = dict:fetch_keys(Users),
   [Fun(E) || E <- All, E /= WebSocketId],
