@@ -92,9 +92,8 @@ function live() {
     var d = JSON.parse(event.data);
     App.Message.add(d.id, d.author, d.text);
   }
-  ws.onerror = function(e) { console.log('error', e); };
-  ws.onopen = function(e) { console.log('open', e); };
-  ws.onclose = function(e) { console.log('close', e); };
+  // FIXME(ja): use exponential backoff?
+  ws.onclose = function(e) { setTimeout(live, 1000); };
 }
 
 live();
