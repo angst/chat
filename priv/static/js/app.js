@@ -48,17 +48,9 @@ App.Message.reopenClass({
     });
   },
   post: function(text) {
-    $.post('/messages', {author: userName, text: text}).then(function(d) {
-      // FIXME(ja): instead of adding, this should update the state of a 
-      // sent message... then we can rely on the websocket below for the action
-      if (d.message) {
-        App.Message.add(d.message.id, 
-                        d.message.author,
-                        d.message.text);
-      } else {
-        console.log(d);
-      }
-    });
+    // FIXME(ja): this should add to list and update the state of a 
+    // sent message... 
+    ws.send(JSON.stringify({message: {author: userName, text: text}}));
   }
 });
 
