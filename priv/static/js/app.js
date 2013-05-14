@@ -83,7 +83,6 @@ function live() {
     ws_url = "ws:";
   }
   ws_url += "//" + loc.host;
-  ws_url += ':' + loc.port;
   ws_url += "/websocket/chat";
   ws = new WebSocket(ws_url, "chat");
 
