@@ -9,12 +9,12 @@
 <script type="text/x-handlebars" data-template-name="index">
   username: {{input valueBinding="userName" hint="user" }}
   <div class="messages">
-  	{{#each controller}}
-  	  <div class="message row">
-  	  	<div class="author span1">{{ author }}</div>
-  	  	<div class="text">{{ text }}</div>
-  	  </div>
-  	{{/each}}
+    {{#each controller}}
+      <div class="message row">
+        <div class="author span1">{{ author }}</div>
+        <div class="text">{{ text }}</div>
+      </div>
+    {{/each}}
   </div>
   {{input valueBinding="newMessage" hint="hi" action="send"}}
 </script>

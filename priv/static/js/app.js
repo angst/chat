@@ -93,6 +93,7 @@ function live() {
     App.Message.add(d.id, d.author, d.text);
   }
   // FIXME(ja): use exponential backoff?
+  ws.onerror = function(e) { console.log('error', e); };
   ws.onclose = function(e) { setTimeout(live, 1000); };
 }
 
