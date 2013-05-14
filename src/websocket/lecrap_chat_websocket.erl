@@ -64,9 +64,17 @@ handle_close(_ServiceName, WebSocketId, _SessionId, State) ->
 %% to handle incoming message to your service
 %% here is simple copy to all
 %%--------------------------------------------------------------------
+handle_incoming(_, _, _, {model, Model, Attrs}, State) ->
+  #state{users=Users} = State,
+  io:format("Sending ~p record to websockets~n", [Model]),
+  Msg = mochijson:encode({struct, [{Model, {struct, Attrs}}]}),
+  Send = fun(X) when is_pid(X)-> X ! {text, Msg} end,
+  [Send(WS) || WS <- dict:fetch_keys(Users)],
+  {noreply, State};
+
 handle_incoming(_ServiceName, WebSocketId, _SessionId, Message, State) ->
   #state{users=Users} = State,
-  io:format("websocket sending: ~s to ~p websockets~n", [Message, dict:size(Users)]),
+  io:format("websocket sending: ~p to ~p websockets~n", [Message, dict:size(Users)]),
   Fun = fun(X) when is_pid(X)-> X ! {text, Message} end,
   All = dict:fetch_keys(Users),
   [Fun(E) || E <- All, E /= WebSocketId],

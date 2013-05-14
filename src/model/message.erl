@@ -6,4 +6,4 @@ after_create() ->
   boss_websocket_router:incoming(<<"/websocket/chat">>,
   	                             wtf,
   	                             wtf,
-  	                             mochijson:encode({struct, THIS:attributes()})).
+  	                             {model, message, THIS:attributes()}).

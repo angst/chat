@@ -96,8 +96,16 @@ function live() {
   ws = new WebSocket(ws_url, "chat");
 
   ws.onmessage = function(event) {
+    console.log(event.data)
     var d = JSON.parse(event.data);
-    App.Message.add(d.id, d.author, d.text);
+    if (d.message) {
+      App.Message.add(d.message.id,
+                      d.message.author,
+                      d.message.text);
+    }
+    if (d.user) {
+      console.log('no user support yet', d.user);
+    }
   }
   // FIXME(ja): use exponential backoff?
   ws.onerror = function(e) { console.log('error', e); };
