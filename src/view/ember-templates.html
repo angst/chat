@@ -7,7 +7,6 @@
 </script>
 
 <script type="text/x-handlebars" data-template-name="index">
-  username: {{input valueBinding="userName" hint="user" }}
   <div class="messages">
     {{#each controller}}
       <div class="message row">
@@ -18,4 +17,5 @@
   </div>
   {{input valueBinding="newMessage" hint="hi" action="send"}}
 </script>
+
 {% endverbatim %}

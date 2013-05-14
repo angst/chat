@@ -2,6 +2,33 @@
 
 {% block content %}
 
-<div id="ember-app"></div>
+<div id="ember-app">
+<br />
+<br />
+      <div class="login">
+        <div class="login-screen">
+          <div class="login-icon">
+            <img src="/static/images/illustrations/paper.png" alt="Welcome to Le Crap" />
+            <h4>Welcome to <small>Le Crap</small></h4>
+          </div>
+
+          <div class="login-form">
+            <div class="control-group">
+              <input type="text" class="login-field" value="" placeholder="Enter your name" id="login-name" />
+              <label class="login-field-icon fui-man-16" for="login-name"></label>
+            </div>
+
+            <div class="control-group">
+              <input type="password" class="login-field" value="" placeholder="Password" id="login-pass" />
+              <label class="login-field-icon fui-lock-16" for="login-pass"></label>
+            </div>
+
+            <a class="btn btn-primary btn-large btn-block" href="#" onclick="emberize()">Login</a>
+            <a class="login-link" href="#" onclick="alert('there are none...')">Lost your password?</a>
+          </div>
+        </div>
+      </div>
+
+</div>
 
 {% endblock %}

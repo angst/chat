@@ -1,3 +1,10 @@
+function emberize() {
+
+userName = $('#login-name').val();
+if (userName == '') return;
+
+$('#ember-app').html('')
+
 App = Ember.Application.create({
   'rootElement': '#ember-app'
 });
@@ -40,8 +47,8 @@ App.Message.reopenClass({
       }
     });
   },
-  post: function(author, text) {
-    $.post('/messages', {author: author, text: text}).then(function(d) {
+  post: function(text) {
+    $.post('/messages', {author: userName, text: text}).then(function(d) {
       // FIXME(ja): instead of adding, this should update the state of a 
       // sent message... then we can rely on the websocket below for the action
       if (d.message) {
@@ -69,7 +76,7 @@ App.IndexController = Ember.ArrayController.extend({
   send: function() {
     // FIXME(ja): we should update the client side as soon as we type
     // but with a state of "sending" until it is recv'd
-    App.Message.post(this.get("userName"), this.get("newMessage"));
+    App.Message.post(this.get("newMessage"));
     this.set('newMessage', '');
   }
 });
@@ -98,3 +105,5 @@ function live() {
 }
 
 live();
+
+}
