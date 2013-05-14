@@ -25,6 +25,7 @@ Install Chicago Boss:
 Run our app:
 
     cd ../lecrap
+    ./rebar compile
     ./init-dev.sh
 
 Visit http://localhost:8003/ in your browser
@@ -32,13 +33,13 @@ Visit http://localhost:8003/ in your browser
 NGINX
 -----
 
-If you want to put chicago boss behind nginx, you will need need a recent 
+If you want to put chicago boss behind nginx, you will need need a recent
 version (at least 1.3.13) that supports websockets.
 
     server {
       server_name lechat.example.com;
       listen 80;
-    
+
       location / {
         proxy_pass http://localhost:8003;
         proxy_http_version 1.1;
