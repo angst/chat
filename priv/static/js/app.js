@@ -1,108 +1,107 @@
-function emberize() {
+// $('#login-name').focus()
 
-userName = $('#login-name').val();
-if (userName == '') return;
+define(function(require) {
+  // ['jquery', 'underscore', 'backbone'],
+  // function($, _, Backbone) {
+  var $ = require('jquery')
+  var _ = require('underscore') || window._
+  var Backbone = require('backbone') || window.Backbone
 
-$('#ember-app').html('')
+  console.log('Backbone', Backbone)
 
-App = Ember.Application.create({
-  'rootElement': '#ember-app'
-});
+  function initialize(name) {
 
-App.Message = Ember.Object.extend({
-  id: null,
-  author: null,
-  text: null
-});
+    userName = name;
 
-App.Message.reopenClass({
-  collection: [],
-  collection_by_id: {},
-  all: function() {
-    return this.collection;
-  },
-  add: function(id, author, text) {
-    // FIXME(ja): should I really have to check manually - no magic?
-    if (this.collection_by_id[id]) {
-      var msg = this.collection_by_id[id];
-      msg.set('author', author);
-      msg.set('text', text);
-      return;
-    }
-    var msg = App.Message.create({
-      id: id,
-      author: author,
-      text: text
+    Message = Backbone.Model.extend({});
+
+    ChatRoom = Backbone.Collection.extend({
+      model: Message
     });
 
-    this.collection.pushObject(msg);
-    this.collection_by_id[msg.id] = msg;
-  },
-  findAll: function() {
-    $.getJSON('/messages').then(function(response) {
-      if (response.messages) {
-        response.messages.forEach(function(data) {
-          App.Message.add(data.id, data.author, data.text);
-        })
+    ChatView = Backbone.View.extend({
+      tagName: 'ul',
+      events: {
+        'change input': 'postText',
+      },
+      initialize: function() {
+        this.collection.on('add', this.renderOne, this);
+        _.bindAll(this, 'render', 'renderOne');
+      },
+      postText: function(o) {
+        var text = o.target.value;
+        if (text) {
+          // FIXME(ja): the use of view.last & author for status is pretty ghetto
+          this.collection.add({author: 'sending...', text: text});
+          this.last = this.collection.last()
+          ws.send(JSON.stringify({message: {author: userName, text: text}}));
+          o.target.value = '';
+        }
+      },
+      render: function() {
+        this.$el.append('<input type="text" />');
+        this.collection.each(this.renderOne);
+        return this;
+      },
+      renderOne: function(model) {
+        var msg = new MsgView({model: model});
+        this.$el.append(msg.render().$el);
       }
     });
-  },
-  post: function(text) {
-    // FIXME(ja): this should add to list and update the state of a 
-    // sent message... 
-    ws.send(JSON.stringify({message: {author: userName, text: text}}));
-  }
-});
 
-App.IndexRoute = Ember.Route.extend({
-  model: function() {
-    return App.Message.all();
-  },
-  init: function() {
-    this._super();
-    App.Message.findAll();
-  }
-});
+    MsgView = Backbone.View.extend({
+      initialize: function() {
+        this.listenTo(this.model, 'change', this.render);
+      },
+      model: Message,
+      render: function() {
+        this.$el.html('<li>'+this.model.escape('author')+': '+this.model.escape('text')+'</li>')
+        return this;
+      }
+    });
 
-App.IndexController = Ember.ArrayController.extend({
-  send: function() {
-    // FIXME(ja): we should update the client side as soon as we type
-    // but with a state of "sending" until it is recv'd
-    App.Message.post(this.get("newMessage"));
-    this.set('newMessage', '');
-  }
-});
+    room = new ChatRoom();
+    view = new ChatView({collection: room});
+    $('#bb-app').html(view.render().el);
+    $('input').focus();
 
-function live() {
-  var loc = window.location
-    , ws_url;
 
-  if (loc.protocol === "https:") {
-    ws_url = "wss:";
-  } else {
-    ws_url = "ws:";
-  }
-  ws_url += "//" + loc.host;
-  ws_url += "/websocket/chat";
-  ws = new WebSocket(ws_url, "chat");
+    function live() {
+      var loc = window.location;
+      var ws_url;
 
-  ws.onmessage = function(event) {
-    console.log(event.data)
-    var d = JSON.parse(event.data);
-    if (d.message) {
-      App.Message.add(d.message.id,
-                      d.message.author,
-                      d.message.text);
+      if (loc.protocol === "https:") {
+        ws_url = "wss:";
+      } else {
+        ws_url = "ws:";
+      }
+      ws_url += "//" + loc.host;
+      ws_url += "/websocket/chat";
+      ws = new WebSocket(ws_url, "chat");
+
+      ws.onmessage = function(event) {
+        var d = JSON.parse(event.data);
+        if (d.message) {
+          if (view.last && d.message.text == view.last.get('text')) {
+            view.last.set('author', d.message.author);
+            view.last.set('id', d.message.id);
+            view.last = null;
+          } else {
+            room.add(d.message);
+          }
+        }
+      }
+      // FIXME(ja): use exponential backoff?
+      ws.onerror = function(e) { console.log('error', e); };
+      ws.onclose = function(e) { setTimeout(live, 1000); };
     }
-    if (d.user) {
-      console.log('no user support yet', d.user);
-    }
+
+    live();
+
   }
-  // FIXME(ja): use exponential backoff?
-  ws.onerror = function(e) { console.log('error', e); };
-  ws.onclose = function(e) { setTimeout(live, 1000); };
-}
 
-live();
+  return {
+    initialize: initialize
+  }
 
-}
+});
