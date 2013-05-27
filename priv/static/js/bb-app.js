@@ -1,21 +1,14 @@
 $('#login-name').focus()
 
-function emberize() {
+function bb() {
 
   userName = $('#login-name').val();
   if (userName == '') return;
 
-  $('#ember-app').html("<div id='chat-list'></div>")
-
-  Message = Backbone.Model.extend({
-    idAttribute: '_id'
-  })
+  Message = Backbone.Model.extend({});
 
   ChatRoom = Backbone.Collection.extend({
-    model: Message,
-    initialize: function() {
-      console.log('msglist.initialize');
-    }
+    model: Message
   });
 
   ChatView = Backbone.View.extend({
@@ -25,56 +18,43 @@ function emberize() {
     },
     initialize: function() {
       this.collection.on('add', this.renderOne, this);
-
       _.bindAll(this, 'render', 'renderOne');
-      if (this.model) {
-        this.model.on('change', this.render, this);
-      }
     },
     postText: function(o) {
-      console.log('postText', o)
       var text = o.target.value;
       if (text) {
+        // FIXME(ja): the use of view.last & author for status is pretty ghetto
+        this.collection.add({author: 'sending...', text: text});
+        this.last = this.collection.last()
         ws.send(JSON.stringify({message: {author: userName, text: text}}));
         o.target.value = '';
       }
     },
-    addMessage: function(id, author, text) {
-      this.chatlist.add({_id: id, author: author, text: text});
-    },
     render: function() {
-      console.log('chatview.render')
       this.$el.append('<input type="text" />');
       this.collection.each(this.renderOne);
       return this;
     },
     renderOne: function(model) {
-      console.log('chatview.renderOne', model);
       var msg = new MsgView({model: model});
       this.$el.append(msg.render().$el);
-      return this;
     }
   });
 
   MsgView = Backbone.View.extend({
-    events: {},
     initialize: function() {
-      console.log('msgview.init', this.model)
       this.listenTo(this.model, 'change', this.render);
     },
     model: Message,
     render: function() {
-      console.log('msgview.render', this.model)
       this.$el.html('<li>'+this.model.escape('author')+': '+this.model.escape('text')+'</li>')
       return this;
     }
-
-  })
+  });
 
   room = new ChatRoom();
-  view = new ChatView({collection: room });
-  $('#chat-list').append(view.render().el);
-
+  view = new ChatView({collection: room});
+  $('#bb-app').html(view.render().el);
   $('input').focus();
 
 
@@ -94,7 +74,13 @@ function emberize() {
     ws.onmessage = function(event) {
       var d = JSON.parse(event.data);
       if (d.message) {
-        room.add(d.message);
+        if (view.last && d.message.text == view.last.get('text')) {
+          view.last.set('author', d.message.author);
+          view.last.set('id', d.message.id);
+          view.last = null;
+        } else {
+          room.add(d.message);
+        }
       }
     }
     // FIXME(ja): use exponential backoff?
