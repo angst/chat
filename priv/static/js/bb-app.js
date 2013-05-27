@@ -5,35 +5,34 @@ function emberize() {
   userName = $('#login-name').val();
   if (userName == '') return;
 
-  $('#ember-app').html("<ul id='chat-list'></ul><input type='text' id='input' /><button id='add-input' />")
+  $('#ember-app').html("<div id='chat-list'></div>")
 
-  $('#input').focus();
-
-  Chat = Backbone.Model.extend({
+  Message = Backbone.Model.extend({
     idAttribute: '_id'
   })
 
-  ChatList = Backbone.Collection.extend({
-    model: Chat,
+  ChatRoom = Backbone.Collection.extend({
+    model: Message,
     initialize: function() {
-      console.log('chatlist.initialize')
+      console.log('msglist.initialize');
     }
   });
 
   ChatView = Backbone.View.extend({
-    tagName: 'li',
+    tagName: 'ul',
     events: {
-      'change #input': 'postText',
+      'change input': 'postText',
     },
     initialize: function() {
-      this.chatlist = new ChatList;
-      _.bindAll(this, 'render');
-      var inst = this;
-      this.chatlist.bind('add', function(model) {
-        inst.render(model);
-      });
+      this.collection.on('add', this.renderOne, this);
+
+      _.bindAll(this, 'render', 'renderOne');
+      if (this.model) {
+        this.model.on('change', this.render, this);
+      }
     },
     postText: function(o) {
+      console.log('postText', o)
       var text = o.target.value;
       if (text) {
         ws.send(JSON.stringify({message: {author: userName, text: text}}));
@@ -43,12 +42,40 @@ function emberize() {
     addMessage: function(id, author, text) {
       this.chatlist.add({_id: id, author: author, text: text});
     },
-    render: function(model) {
-      $('#chat-list').append('<li>'+model.escape('author')+': '+model.escape('text')+'</li>')
+    render: function() {
+      console.log('chatview.render')
+      this.$el.append('<input type="text" />');
+      this.collection.each(this.renderOne);
+      return this;
+    },
+    renderOne: function(model) {
+      console.log('chatview.renderOne', model);
+      var msg = new MsgView({model: model});
+      this.$el.append(msg.render().$el);
+      return this;
     }
   });
 
-  view = new ChatView({el: 'body'});
+  MsgView = Backbone.View.extend({
+    events: {},
+    initialize: function() {
+      console.log('msgview.init', this.model)
+      this.listenTo(this.model, 'change', this.render);
+    },
+    model: Message,
+    render: function() {
+      console.log('msgview.render', this.model)
+      this.$el.html('<li>'+this.model.escape('author')+': '+this.model.escape('text')+'</li>')
+      return this;
+    }
+
+  })
+
+  room = new ChatRoom();
+  view = new ChatView({collection: room });
+  $('#chat-list').append(view.render().el);
+
+  $('input').focus();
 
 
   function live() {
@@ -67,9 +94,7 @@ function emberize() {
     ws.onmessage = function(event) {
       var d = JSON.parse(event.data);
       if (d.message) {
-        view.addMessage(d.message.id,
-                        d.message.author,
-                        d.message.text);
+        room.add(d.message);
       }
     }
     // FIXME(ja): use exponential backoff?
